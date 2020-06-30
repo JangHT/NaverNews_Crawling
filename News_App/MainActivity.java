@@ -3,12 +3,20 @@ package com.example.sqllite_test;
 import android.app.Activity;
 import android.os.Bundle;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
+import android.os.Environment;
 import android.util.Log;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -24,21 +32,87 @@ public class MainActivity  extends Activity {
     private final String dbName = "webnautes";
     private final String tableName = "person";
 
-    private String names[];
+    private String title[];
     {
-        names = new String[]{"Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread", "Honeycomb", "Ice Cream Sandwich", "Jelly Bean", "Kitkat"};
+        title = new String[]{"Cupcake", "Donut", "Eclair", "Froyo", "Gingerbread", "Honeycomb", "Ice Cream Sandwich", "Jelly Bean", "Kitkat"};
     }
 
-    private final String phones[];
+    private final String date[];
     {
-        phones = new String[]{"Android 1.5", "Android 1.6", "Android 2.0", "Android 2.2", "Android 2.3", "Android  3.0", "Android  4.0", "Android  4.1", "Android  4.4"};
+        date = new String[]{"Android 1.5", "Android 1.6", "Android 2.0", "Android 2.2", "Android 2.3", "Android  3.0", "Android  4.0", "Android  4.1", "Android  4.4"};
     }
-
 
     ArrayList<HashMap<String, String>> personList;
+
+    protected void getData() {
+
+
+        String path = "C:/Users/HTJang/Desktop/example1/mycsvfile.txt";
+
+
+        File sdcard = Environment.getExternalStorageDirectory();
+        File file = new File(sdcard, path);
+        BufferedReader br = null;
+        {
+
+            try {
+                br = new BufferedReader(new FileReader(file));
+            } catch (FileNotFoundException ex) {
+                ex.printStackTrace();
+            }
+            String line = null;
+
+            while (true) {
+                try {
+                    if (!((line = br.readLine()) != null)) break;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                String[] elements = line.split("\\|\\|");
+                List<String> itlist = Arrays.asList(elements);
+            }
+            try {
+                br.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+/*
+    BufferedReader br = null;
+    {
+        try {
+            br = new BufferedReader(new FileReader(path));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        String line = null;
+        HashMap<String, String> map = new HashMap<String, String>();
+
+        while (true) {
+            try {
+                if (!((line = br.readLine()) != null)) break;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+            System.out.println(line);
+            String[] elements = line.split("\\|\\|");
+            List<String> itlist = Arrays.asList(elements);
+            //ArrayList<String> listOfString = new ArrayList<String>(itlist);
+        }
+    }
+*/
+
+
     ListView list;
-    private static final String TAG_NAME = "name";
-    private static final String TAG_PHONE ="phone";
+    private static final String TAG_NAME = "title";
+    private static final String TAG_PHONE ="date";
 
     SQLiteDatabase sampleDB = null;
     ListAdapter adapter;
@@ -60,15 +134,15 @@ public class MainActivity  extends Activity {
 
             //테이블이 존재하지 않으면 새로 생성합니다.
             sampleDB.execSQL("CREATE TABLE IF NOT EXISTS " + tableName
-                    + " (name VARCHAR(20), phone VARCHAR(20) );");
+                    + " (title VARCHAR(20), date VARCHAR(20) );");
 
             //테이블이 존재하는 경우 기존 데이터를 지우기 위해서 사용합니다.
             sampleDB.execSQL("DELETE FROM " + tableName  );
 
             //새로운 데이터를 테이블에 집어넣습니다..
-            for (int i=0; i<names.length; i++ ) {
+            for (int i=0; i<title.length; i++ ) {
                 sampleDB.execSQL("INSERT INTO " + tableName
-                        + " (name, phone)  Values ('" + names[i] + "', '" + phones[i]+"');");
+                        + " (title, date)  Values ('" + title[i] + "', '" + date[i]+"');");
             }
 
             sampleDB.close();
@@ -104,14 +178,14 @@ public class MainActivity  extends Activity {
                     do {
 
                         //테이블에서 두개의 컬럼값을 가져와서
-                        String Name = c.getString(c.getColumnIndex("name"));
-                        String Phone = c.getString(c.getColumnIndex("phone"));
+                        String title = c.getString(c.getColumnIndex("title"));
+                        String date = c.getString(c.getColumnIndex("date"));
 
                         //HashMap에 넣습니다.
                         HashMap<String,String> persons = new HashMap<String,String>();
 
-                        persons.put(TAG_NAME,Name);
-                        persons.put(TAG_PHONE,Phone);
+                        persons.put(TAG_NAME,title);
+                        persons.put(TAG_PHONE,date);
 
                         //ArrayList에 추가합니다..
                         personList.add(persons);
@@ -127,7 +201,7 @@ public class MainActivity  extends Activity {
             adapter = new SimpleAdapter(
                     this, personList, R.layout.list_item,
                     new String[]{TAG_NAME,TAG_PHONE},
-                    new int[]{ R.id.name, R.id.phone}
+                    new int[]{ R.id.title, R.id.date}
             );
 
 
